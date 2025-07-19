@@ -96,7 +96,6 @@
       padding: 12px;
       background: var(--bg-darker);
       border-top: 1px solid var(--border-color);
-      /* Add padding at the bottom for mobile browsers */
       padding-bottom: max(12px, env(safe-area-inset-bottom));
     }
     
@@ -137,7 +136,6 @@
       background: var(--accent-blue-dark);
     }
     
-    /* Custom scrollbar */
     #chat::-webkit-scrollbar {
       width: 6px;
     }
@@ -151,7 +149,6 @@
       border-radius: 3px;
     }
     
-    /* Typing indicator */
     .typing-indicator {
       display: flex;
       padding: 12px 16px;
@@ -181,7 +178,6 @@
       30% { transform: translateY(-4px); }
     }
 
-    /* Welcome popup styles */
     #welcome-popup {
       position: fixed;
       top: 0;
@@ -242,6 +238,18 @@
     #close-welcome:hover {
       background: var(--accent-blue-dark);
     }
+    
+    .dont-show-again {
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .dont-show-again input {
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
@@ -257,8 +265,7 @@
     <button type="submit" id="send">Send</button>
   </form>
 
-  <!-- Welcome Popup -->
-  <div id="welcome-popup">
+  <div id="welcome-popup" style="display: none;">
     <div id="welcome-content">
       <h2>Welcome to JobBot! 🤖</h2>
       <p>I'm your AI career assistant, here to help you with all things job-related. Here's what I can do for you:</p>
@@ -271,19 +278,24 @@
         <li>🎯 Tailor your application materials to specific jobs</li>
       </ul>
       <p>Ask me anything about jobs, applications, or career advice. I'm here to help you land your dream job!</p>
+      <div class="dont-show-again">
+        <input type="checkbox" id="dont-show-again">
+        <label for="dont-show-again">Don't show this again</label>
+      </div>
       <button id="close-welcome">Get Started</button>
     </div>
   </div>
 
   <script>
     const apiUrl = "/api/chat";
-    const modelName = "mistralai/mistral-7b-instruct"; // or any model from https://openrouter.ai/docs#models
+    const modelName = "mistralai/mistral-7b-instruct";
 
     const chat = document.getElementById("chat");
     const form = document.getElementById("form");
     const input = document.getElementById("input");
     const welcomePopup = document.getElementById("welcome-popup");
     const closeWelcome = document.getElementById("close-welcome");
+    const dontShowAgain = document.getElementById("dont-show-again");
 
     let messages = [
       {
@@ -310,25 +322,28 @@ Proper spacing and readable formatting
 
 A warm, confident, professional tone
 
-Don't rush the user as well, slow and steady if need be.
-
 Always act like a smart, friendly career coach who's trying to help someone land their dream job.
 Never Hallucinate, if unsure, ask more questions.`
       }
     ];
 
+    // Show popup on page load unless user has chosen not to see it
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem("jobbot-welcome-hidden")) {
+        welcomePopup.style.display = "flex";
+      } else {
+        input.focus();
+      }
+    });
+
     // Close welcome popup
     closeWelcome.addEventListener("click", () => {
       welcomePopup.style.display = "none";
-      // Store in localStorage that user has seen the welcome
-      localStorage.setItem("jobbot-welcome-seen", "true");
+      if (dontShowAgain.checked) {
+        localStorage.setItem("jobbot-welcome-hidden", "true");
+      }
       input.focus();
     });
-
-    // Check if user has seen welcome before
-    if (localStorage.getItem("jobbot-welcome-seen")) {
-      welcomePopup.style.display = "none";
-    }
 
     function appendMessage(text, className) {
       const msg = document.createElement("div");
@@ -368,7 +383,6 @@ Never Hallucinate, if unsure, ask more questions.`
           method: "POST",
           headers: {
           "Content-Type": "application/json",
-          // Add any other required headers here
           },
 
           body: JSON.stringify({
@@ -395,8 +409,8 @@ Never Hallucinate, if unsure, ask more questions.`
       }
     });
 
-    // Focus input on load if welcome was already seen
-    if (localStorage.getItem("jobbot-welcome-seen")) {
+    // Focus input if welcome is not shown
+    if (localStorage.getItem("jobbot-welcome-hidden")) {
       input.focus();
     }
   </script>
