@@ -194,12 +194,9 @@
   </form>
 
   <script>
-    const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+    const apiUrl = "/api/chat";
     const modelName = "mistral/mistral-7b-instruct"; // or any model from https://openrouter.ai/docs#models
 
-
-    const API_KEY = "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";
-    const MODEL = "mistral/mistral-7b-instruct"; // or "gpt-4"
 
     const chat = document.getElementById("chat");
     const form = document.getElementById("form");
@@ -272,8 +269,7 @@ Always act like a smart, friendly career coach who's trying to help someone land
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer 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"
-            },
+             },
 
           body: JSON.stringify({
             model: modelName,
