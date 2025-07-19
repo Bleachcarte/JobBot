@@ -194,8 +194,8 @@
   </form>
 
   <script>
-    const apiUrl = "/api/chat.js";
-    const modelName = "mistral/mistral-7b-instruct"; // or any model from https://openrouter.ai/docs#models
+    const apiUrl = "/api/chat";
+    const modelName = "mistralai/mistral-7b-instruct"; // or any model from https://openrouter.ai/docs#models
 
 
     const chat = document.getElementById("chat");
@@ -268,8 +268,9 @@ Always act like a smart, friendly career coach who's trying to help someone land
         const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-             },
+          "Content-Type": "application/json",
+          // Add any other required headers here
+          },
 
           body: JSON.stringify({
             model: modelName,
