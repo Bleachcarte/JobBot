@@ -96,6 +96,8 @@
       padding: 12px;
       background: var(--bg-darker);
       border-top: 1px solid var(--border-color);
+      /* Add padding at the bottom for mobile browsers */
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
     }
     
     #input {
@@ -178,6 +180,68 @@
       0%, 60%, 100% { transform: translateY(0); }
       30% { transform: translateY(-4px); }
     }
+
+    /* Welcome popup styles */
+    #welcome-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    #welcome-content {
+      background: var(--bg-darker);
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    #welcome-content h2 {
+      margin-top: 0;
+      color: var(--text-primary);
+    }
+    
+    #welcome-content p {
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    #welcome-content ul {
+      padding-left: 20px;
+      color: var(--text-secondary);
+    }
+    
+    #welcome-content li {
+      margin-bottom: 8px;
+    }
+    
+    #close-welcome {
+      background: var(--accent-blue);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    
+    #close-welcome:hover {
+      background: var(--accent-blue-dark);
+    }
   </style>
 </head>
 <body>
@@ -193,14 +257,33 @@
     <button type="submit" id="send">Send</button>
   </form>
 
+  <!-- Welcome Popup -->
+  <div id="welcome-popup">
+    <div id="welcome-content">
+      <h2>Welcome to JobBot! 🤖</h2>
+      <p>I'm your AI career assistant, here to help you with all things job-related. Here's what I can do for you:</p>
+      <ul>
+        <li>📝 Write and improve your CV/resume</li>
+        <li>✍️ Craft professional cover letters</li>
+        <li>💡 Provide job application tips and advice</li>
+        <li>🔍 Analyze job descriptions for you</li>
+        <li>📩 Help with cold outreach messages</li>
+        <li>🎯 Tailor your application materials to specific jobs</li>
+      </ul>
+      <p>Ask me anything about jobs, applications, or career advice. I'm here to help you land your dream job!</p>
+      <button id="close-welcome">Get Started</button>
+    </div>
+  </div>
+
   <script>
     const apiUrl = "/api/chat";
     const modelName = "mistralai/mistral-7b-instruct"; // or any model from https://openrouter.ai/docs#models
 
-
     const chat = document.getElementById("chat");
     const form = document.getElementById("form");
     const input = document.getElementById("input");
+    const welcomePopup = document.getElementById("welcome-popup");
+    const closeWelcome = document.getElementById("close-welcome");
 
     let messages = [
       {
@@ -217,7 +300,7 @@ You will be asked to:
 
 Format responses with:
 
-Clear section headings (e.g., “Summary of Job,” “Improved Resume Points”)
+Clear section headings (e.g., "Summary of Job," "Improved Resume Points")
 
 Logical paragraph breaks (no walls of text)
 
@@ -227,9 +310,23 @@ Proper spacing and readable formatting
 
 A warm, confident, professional tone
 
-Always act like a smart, friendly career coach who's trying to help someone land their dream job.`
+Always act like a smart, friendly career coach who's trying to help someone land their dream job.
+Never Hallucinate, if unsure, ask more questions.`
       }
     ];
+
+    // Close welcome popup
+    closeWelcome.addEventListener("click", () => {
+      welcomePopup.style.display = "none";
+      // Store in localStorage that user has seen the welcome
+      localStorage.setItem("jobbot-welcome-seen", "true");
+      input.focus();
+    });
+
+    // Check if user has seen welcome before
+    if (localStorage.getItem("jobbot-welcome-seen")) {
+      welcomePopup.style.display = "none";
+    }
 
     function appendMessage(text, className) {
       const msg = document.createElement("div");
@@ -296,10 +393,11 @@ Always act like a smart, friendly career coach who's trying to help someone land
       }
     });
 
-    // Focus input on load
-    input.focus();
+    // Focus input on load if welcome was already seen
+    if (localStorage.getItem("jobbot-welcome-seen")) {
+      input.focus();
+    }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 </body>
 </html>
